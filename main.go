@@ -20,7 +20,7 @@ func main() {
 	srv.Use(middleware.Recover())
 
 	// Routes
-	srv.Any("/", teapot)
+	srv.Any("*", teapot)
 
 	srv.Logger.Fatal(srv.Start(address + ":" + port))
 }
