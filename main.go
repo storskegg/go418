@@ -12,6 +12,11 @@ const (
 	port = "3500"
 )
 
+type teapotJSON struct {
+	Status string `json:"status" xml:"status"`
+	Message string `json:"message" xml:"message"`
+}
+
 func main() {
 	srv := echo.New()
 
@@ -26,5 +31,9 @@ func main() {
 }
 
 func teapot(c echo.Context) error {
-	return c.JSON(http.StatusTeapot, "{\"status\":\"error\",\"msg\":\"I'm a teapot.\"}")
+	msg := &teapotJSON{
+		Status:"error",
+		Message:"I'm a teapot",
+	}
+	return c.JSON(http.StatusTeapot, msg)
 }
