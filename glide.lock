@@ -1,15 +1,20 @@
 hash: 088bbee484cfe4bff0cc041c5430f619bfdba7c070710dd7a2b6a3e3b77fc274
-updated: 2018-06-21T08:43:52.443877164-05:00
+updated: 2018-06-21T08:54:06.300392128-05:00
 imports:
+- name: github.com/dgrijalva/jwt-go
+  version: 06ea1031745cb8b3dab3f6a236daf2b0aa468b7e
 - name: github.com/labstack/echo
   version: 6d227dfea4d2e52cb76856120b3c17f758139b4e
   subpackages:
   - '...'
+  - middleware
 - name: github.com/labstack/gommon
   version: 0a22a0df01a7c84944c607e8a6e91cfe421ea7ed
   subpackages:
+  - bytes
   - color
   - log
+  - random
 - name: github.com/mattn/go-colorable
   version: efa589957cd060542a26d2dd7832fd6a6c6c3ade
 - name: github.com/mattn/go-isatty
