@@ -8,12 +8,12 @@ import (
 )
 
 const (
-	address = ""
-	port = "3500"
+	address = "127.0.0.1"
+	port    = "3500"
 )
 
 type teapotJSON struct {
-	Status string `json:"status" xml:"status"`
+	Status  string `json:"status" xml:"status"`
 	Message string `json:"message" xml:"message"`
 }
 
@@ -27,13 +27,14 @@ func main() {
 	// Routes
 	srv.Any("*", teapot)
 
+	// Get the teapot started
 	srv.Logger.Fatal(srv.Start(address + ":" + port))
 }
 
 func teapot(c echo.Context) error {
 	msg := &teapotJSON{
-		Status:"error",
-		Message:"I'm a teapot",
+		Status:  "error",
+		Message: "I'm a teapot",
 	}
 	return c.JSON(http.StatusTeapot, msg)
 }
