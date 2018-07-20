@@ -8,8 +8,11 @@ import (
 	"github.com/labstack/echo/middleware"
 	"github.com/shirou/gopsutil/host"
 	"math"
+	"os"
+	"os/signal"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 )
 
@@ -33,6 +36,11 @@ type teapotJSON struct {
 }
 
 func main() {
+	sigs := make(chan os.Signal, 1)
+	done := make(chan struct{}, 1)
+
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+
 	srv := echo.New()
 
 	// Middleware
@@ -46,6 +54,18 @@ func main() {
 
 	// Get the teapot started
 	srv.Logger.Fatal(srv.Start(address + ":" + port))
+
+	go func() {
+		sig := <-sigs
+		srv.Logger.Printf("Received signal %v! Shutting down...", sig)
+		done <- struct{}{}
+	}()
+
+	<-done
+	err := srv.Close()
+	if err != nil {
+		panic(err)
+	}
 }
 
 func teapot(c echo.Context, logger echo.Logger) error {
