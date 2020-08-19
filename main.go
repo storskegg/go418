@@ -3,17 +3,9 @@ package main
 import (
 	"net/http"
 
-	"fmt"
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
-	"github.com/shirou/gopsutil/host"
-	"math"
-	"os"
-	"os/signal"
-	"strconv"
-	"strings"
-	"syscall"
-	"time"
+	"github.com/facebookgo/grace/gracehttp"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 const (
@@ -36,11 +28,6 @@ type teapotJSON struct {
 }
 
 func main() {
-	sigs := make(chan os.Signal, 1)
-	done := make(chan struct{}, 1)
-
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-
 	srv := echo.New()
 
 	// Middleware
@@ -52,33 +39,22 @@ func main() {
 		return teapot(c, srv.Logger)
 	})
 
+	srv.Server.Addr = address + ":" + port
 	// Get the teapot started
-	srv.Logger.Fatal(srv.Start(address + ":" + port))
-
-	go func() {
-		sig := <-sigs
-		srv.Logger.Printf("Received signal %v! Shutting down...", sig)
-		done <- struct{}{}
-	}()
-
-	<-done
-	err := srv.Close()
-	if err != nil {
-		panic(err)
-	}
+	srv.Logger.Fatal(gracehttp.Serve(srv.Server))
 }
 
 func teapot(c echo.Context, logger echo.Logger) error {
-	uptime, uptimeFormatted := uptime()
+	//uptime, uptimeFormatted := uptime()
 
-	logger.Print("Uptime: ", uptime)
+	//logger.Print("Uptime: ", uptime)
 
 	system := &systemJSON{
 		Make:            "Fiestaware",
 		Model:           "Teapot (Fiesta Red)",
 		Year:            1958,
-		Uptime:          uptime,
-		UptimeFormatted: uptimeFormatted,
+		Uptime:          0,
+		UptimeFormatted: "",
 	}
 	msg := &teapotJSON{
 		Status:  "error",
@@ -88,18 +64,18 @@ func teapot(c echo.Context, logger echo.Logger) error {
 	return c.JSON(http.StatusTeapot, msg)
 }
 
-func uptime() (uint64, string) {
-	uptimeSeconds, _ := host.Uptime()
-	uptimeSeconds = uptimeSeconds * 1000000000
-	uptime := time.Duration(uptimeSeconds).String()
-	split := strings.Split(uptime, "h")
-	hours, _ := strconv.ParseInt(split[0], 10, 64)
-	split = strings.Split(split[1], "m")
-	minutes, _ := strconv.ParseInt(split[0], 10, 64)
-	seconds, _ := strconv.ParseInt(strings.TrimRight(split[1], "s"), 10, 64)
-
-	days := math.Floor(float64(hours) / 24)
-	hours = hours % 24
-
-	return uptimeSeconds, fmt.Sprintf("%v days, %v hours, %v minutes, %v seconds", days, hours, minutes, seconds)
-}
+//func uptime() (uint64, string) {
+//	uptimeSeconds, _ := host.Uptime()
+//	uptimeSeconds = uptimeSeconds * 1000000000
+//	uptime := time.Duration(uptimeSeconds).String()
+//	split := strings.Split(uptime, "h")
+//	hours, _ := strconv.ParseInt(split[0], 10, 64)
+//	split = strings.Split(split[1], "m")
+//	minutes, _ := strconv.ParseInt(split[0], 10, 64)
+//	seconds, _ := strconv.ParseInt(strings.TrimRight(split[1], "s"), 10, 64)
+//
+//	days := math.Floor(float64(hours) / 24)
+//	hours = hours % 24
+//
+//	return uptimeSeconds, fmt.Sprintf("%v days, %v hours, %v minutes, %v seconds", days, hours, minutes, seconds)
+//}
